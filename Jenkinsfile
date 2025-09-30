@@ -61,10 +61,12 @@ pipeline {
         }
     }
     // Archive build log as artifact
-    post {
-        always {
-            // Archive build.log file after every run
-            archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
+        post {
+            always {
+                // Ensure workspace context for archiving
+                node {
+                    archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
+                }
+            }
         }
-    }
 }
