@@ -45,5 +45,15 @@ pipeline {
                 }
             }
         }
+        stage('Create Log') {
+            steps {
+                sh 'echo "Pipeline ran successfully on $(date)" > build.log'
+            }
+        }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
+        }
     }
 }
