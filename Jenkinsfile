@@ -64,9 +64,7 @@ pipeline {
         post {
             always {
                 // Ensure workspace context for archiving
-                node {
-                    archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
-                }
+                archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
             }
         }
 }
