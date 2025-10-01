@@ -1,12 +1,11 @@
 pipeline {
-    // Pipeline configuration
-    agent any // Use specific agents for each stage
+    agent none // Use specific agents for each stage
     environment {
         // Set the Docker image name and tag for the app
         IMAGE_NAME = 'chiamintwts/assignment2_22165266:latest'
     }
     stages {
-        // Stage 1: Install Node.js dependencies
+        // Stage 1: Install  dependencies Node.js
         stage('Install Dependencies') {
             agent { docker { image 'node:16' } } // Use Node 16 Docker image for build agent
             steps {
@@ -28,7 +27,6 @@ pipeline {
             steps {
                 // Install Snyk CLI and run a scan
                 sh 'npm install -g snyk'
-                
                 // Authenticate with Snyk using token from credentials
                 withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                     sh 'snyk auth $SNYK_TOKEN'
@@ -68,7 +66,6 @@ pipeline {
     // Archive build log as artifact
     post {
         always {
-            // Ensure workspace context for archiving
             archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
         }
     }
