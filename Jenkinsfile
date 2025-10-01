@@ -1,76 +1,49 @@
 pipeline {
-    agent none // Use specific agents for each stage
+    agent none
     environment {
-        // Set the Docker image name and tag for the app
         IMAGE_NAME = 'chiamintwts/assignment2_22165266:latest'
     }
     stages {
-        // Stage 1: Install  dependencies Node.js
+        // Install dependencies using npm install --save
         stage('Install Dependencies') {
-            agent { docker { image 'node:16' } } // Use Node 16 Docker image for build agent
+            agent { docker { image 'node:16' } }
             steps {
-                // Install dependencies using npm
                 sh 'npm install --save'
             }
         }
-        // Stage 2: Run unit tests
+        // Run unit tests
         stage('Run Unit Tests') {
             agent { docker { image 'node:16' } }
             steps {
-                // Run the test suite
                 sh 'npm test'
             }
         }
-        // Stage 3: Security scan with Snyk
+        // Security scan with Snyk CLI
         stage('Security Scan') {
             agent { docker { image 'node:16' } }
             steps {
-                script {
-                    try {
-                        // Install Snyk CLI and run a scan
-                        sh 'npm install -g snyk'
-                        // Try to authenticate with Snyk using token from credentials
-                        withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                            sh 'snyk auth $SNYK_TOKEN'
-                            // Pipeline fails if any high severity issues are found
-                            sh 'snyk test --severity-threshold=high'
-                        }
-                        echo "✅ Security scan completed successfully"
-                    } catch (Exception e) {
-                        echo "⚠️ Security scan skipped: Snyk token not configured or scan failed"
-                        echo "To enable security scanning, add 'snyk-token' credential in Jenkins"
-                        // Don't fail the pipeline, just warn (but don't mark as unstable)
-                    }
+                sh 'npm install -g snyk'
+                withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                    sh 'snyk auth $SNYK_TOKEN'
+                    sh 'snyk test --severity-threshold=high'
                 }
             }
         }
-        // Stage 4: Build Docker image for the app
+        // Build Docker image
         stage('Build Docker Image') {
-            agent any // Run on Jenkins master
+            agent any
             steps {
-                // Build the Docker image using the Dockerfile
                 sh 'docker build -t $IMAGE_NAME .'
             }
         }
-        // Stage 5: Push Docker image to Docker Hub
+        // Push to registry
         stage('Push Docker Image') {
             agent any
             steps {
-                // Login to Docker Hub and push the image
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
                     sh 'echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin'
                     sh 'docker push $IMAGE_NAME'
                 }
-            }
-        }
-        // Stage 6: Create build log file and archive artifacts
-        stage('Create Log') {
-            agent any
-            steps {
-                // Create a log file with pipeline execution timestamp
-                sh 'echo "Pipeline ran successfully on $(date)" > build.log'
-                // Archive the build log as artifact
-                archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
             }
         }
     }

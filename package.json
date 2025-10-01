@@ -4,8 +4,7 @@
   "description": "Sample Node.js (Express) app for AWS Elastic Beanstalk",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "test": "echo \"No tests specified, but package.json is valid and dependencies are installed\""
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
