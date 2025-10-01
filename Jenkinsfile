@@ -54,19 +54,13 @@ pipeline {
                 }
             }
         }
-        // Stage 6: Create build log file
+        // Stage 6: Create build log file and archive artifacts
         stage('Create Log') {
             agent any
             steps {
                 // Create a log file with pipeline execution timestamp
                 sh 'echo "Pipeline ran successfully on $(date)" > build.log'
-            }
-        }
-    }
-    // Archive build log as artifact
-    post {
-        always {
-            node {
+                // Archive the build log as artifact
                 archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
             }
         }
