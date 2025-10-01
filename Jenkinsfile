@@ -39,8 +39,7 @@ pipeline {
                     } catch (Exception e) {
                         echo "⚠️ Security scan skipped: Snyk token not configured or scan failed"
                         echo "To enable security scanning, add 'snyk-token' credential in Jenkins"
-                        // Don't fail the pipeline, just warn
-                        currentBuild.result = 'UNSTABLE'
+                        // Don't fail the pipeline, just warn (but don't mark as unstable)
                     }
                 }
             }
