@@ -66,7 +66,9 @@ pipeline {
     // Archive build log as artifact
     post {
         always {
-            archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
+            node {
+                archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
+            }
         }
     }
 }
