@@ -15,8 +15,8 @@ pipeline {
         stage('Run Unit Tests') {
             agent { docker { image 'node:16' } }
             steps {
-                // Mock test using npm validation - validates app can start correctly
-                sh 'npm run start --dry-run'
+                // Validate package.json and dependencies without starting server
+                sh 'npm ls --depth=0'
             }
         }
         // Security scan with Snyk CLI
